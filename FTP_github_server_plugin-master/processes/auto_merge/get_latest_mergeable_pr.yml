@@ -1,0 +1,39 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+# Description:
+# This task list is called from mxpipeline/core/processes/auto_merge to get the latest mergeable pull request on this git server
+#
+# #####################
+# --- Input ---
+# git_url: # The url of the repository containing this commit
+# git_server_admin_user:
+# git_server_admin_password:
+#
+# result: # The variable where the result of this task will be stored
+# 
+# #####################
+# --- Result ---
+# The result returned from this tasklist is id of the latest mergeable pull request
+
+# TODO: Get latest mergeable pull request
+# - name: Get latest mergeable pull request
+#   fail:
+#     msg: "Not implemented"
+- name: Get Next Available Prs
+  include_tasks: get_next_available_prs.yml
+  vars:
+    result: _next_available_prs
+
+- name: Set Result
+  set_fact:
+    "{{ result }}": "{{ _next_available_prs[0].id }}"
+  when: _next_available_prs is defined

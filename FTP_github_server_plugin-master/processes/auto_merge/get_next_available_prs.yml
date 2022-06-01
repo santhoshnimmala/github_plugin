@@ -1,0 +1,34 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+- include_tasks: get_mergeable_pull_requests.yml
+  vars:
+    result: _mergeable_pull_requests
+
+- block:
+  - set_fact:
+      available_prs: []
+      available_non_sequential_prs: []
+      sequential_pattern: "sequential:yes"
+
+  - name: Add sequential and priority keys
+    set_fact:
+      available_prs: "{{ available_prs + [item | combine({'sequential': (item.description | default('')).find(sequential_pattern) != -1, 'priority': (item.description | regex_search('(?<=\\bpriority:p)(\\S+)(?=|.+)', multiline=True, ignorecase=True) | int) if (item.description.find('priority:p') != -1) else 9999, 'merge_attempts': (item.description | regex_search('(?<=\\bmerge_attempts:)(\\S+)(?=|.+)', multiline=True, ignorecase=True) | int) if (item.description.find('merge_attempts:') != -1) else 0 }) ]}}"
+    with_items: "{{ _mergeable_pull_requests }}"
+
+  - name: Sort available prs
+    set_fact:
+      available_prs: "{{ available_prs | sort(attribute='merge_attempts') | sort(attribute='sequential') | sort(attribute='priority') }}"
+
+  - name: Set result
+    set_fact:
+      "{{ result }}": "{{ available_prs }}"
+  when: _mergeable_pull_requests != []

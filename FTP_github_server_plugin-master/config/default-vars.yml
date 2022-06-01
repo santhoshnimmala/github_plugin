@@ -1,0 +1,56 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+# Git server specific vars that are globally available for seed scripts
+# ex: the webhook request body mapping
+
+git_server_auto_merge_webhook_request_mapping:
+  projectKey: "$.pullRequest.fromRef.repository.project.key"
+  repositorySlug: "$.pullRequest.fromRef.repository.slug"
+  pullRequestId: "$.pullRequest.id"
+  branchId: "$.pullRequest.fromRef.displayId"
+  destBranchId: "$.pullRequest.toRef.displayId"
+  actorSlug: "$.actor.slug"
+  reviewers: "$.pullRequest.reviewers"
+  pullRequestUser: "$.pullRequest.author.user.name"
+  pullRequestDescription: "$.pullRequest.description"
+
+# Queue build on branch creation
+git_server_queue_build_on_branch_creation_supported: true
+git_server_queue_build_on_branch_creation_webhook_request_mapping:
+  wht_branch_name: "$.changes[0].ref.displayId"
+  wht_branch_creator: "$.actor.name"
+  wht_event_key: "$.eventKey"
+  wht_change_type: "$.changes[0].type"
+  wht_change_ref_type: "$.changes[0].ref.type"
+git_server_queue_build_on_branch_creation_webhook_request_condition:
+  wht_event_key: "repo:refs_changed"
+  wht_change_type: ADD
+  wht_change_ref_type: BRANCH
+
+# Health check
+git_server_health_check_supported: false
+git_server_health_check_webhook_request_mapping:
+  wht_change_type: "$.changes[0].type"
+  wht_repository_name: "$.repository.name"
+  wht_event_key: "$.eventKey"
+  wht_change_ref_type: "$.changes[0].ref.type"
+  wht_branch_name: "$.changes[0].ref.displayId"
+  wht_commit_id: "$.changes[0].toHash"
+git_server_health_check_webhook_request_condition:
+  wht_repository_name: "{{ config_repo_name }}"
+  wht_event_key: "repo:refs_changed"
+  wht_change_type: "UPDATE"
+  wht_change_ref_type: "BRANCH"
+  wht_branch_name: "({{ health_check_branches | join('|') }})"
+
+# Git online sync
+git_server_git_online_sync_supported: true

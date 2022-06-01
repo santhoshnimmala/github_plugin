@@ -1,0 +1,30 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+# Description:
+# This task list is called from mxpipeline/core/processes/queue_build_on_branch_creation to get the latest commit id under a branch
+#
+# #####################
+# --- Input ---
+# git_url: url of the git repository
+# branch_name: name of the branch from which the latest commit id is returned
+# git_server_admin_user
+# git_server_admin_password
+# result: the variable where the result of this task will be stored
+#
+# #####################
+# --- Result ---
+# The result returned from this tasklist is the latest commit id under a branch
+
+# TODO: Get Commit ID from Branch Name
+- name: Get Commit ID from Branch Name
+  fail:
+    msg: "Not implemented"

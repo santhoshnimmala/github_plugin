@@ -1,0 +1,44 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+# Description:
+# This task list is called from mxpipeline/core/processes/auto_merge to get the pull request details of a specific pull request
+#
+# #####################
+# --- Input ---
+# git_url: # The url of the git repository
+# git_server_admin_user:
+# git_server_admin_password:
+# pull_request_id: 
+# result: # The variable where the result of this task will be stored
+#
+# #####################
+# --- Result ---
+# The result returned from this tasklist is an object containing the details of the pull request
+# It should be of the following format:
+# id:
+# title:
+# description:
+# url:
+# src_branch:
+# dest_branch:
+# commits: 
+# - id: 8a102e0b177103d833c129321992629f76b0436b
+#   url: 
+#   message:
+# author:
+#   name:
+# reviewers:
+# - name: jsmith
+# - name: jdoe
+
+# TODO: Get pull request details
+- include_tasks: ../common/get_pull_request_details.yml

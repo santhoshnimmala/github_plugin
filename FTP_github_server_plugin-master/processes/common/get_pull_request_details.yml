@@ -1,0 +1,83 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+- include_tasks: ../common/get_project_name_from_git_url.yml
+  vars:
+    # git_url: passed implicitly
+    result: git_project_name
+
+- include_tasks: ../common/get_repository_name_from_git_url.yml
+  vars:
+    # git_url: (passed implicitly)
+    # git_project_name: (passed implicitly)
+    result: git_repo_name
+
+- include_tasks: ../common/get_base_url_from_git_url.yml
+  vars:
+    # git_url: passed implicitly
+    result: git_base_url
+
+- name: Get pull request details from bitbucket api
+  uri:
+    url: "{{ git_base_url }}/api/v3/repos/{{ git_project_name }}/{{ git_repo_name }}/pulls/{{ pull_request_id }}"
+    method: GET
+    user: "{{ git_server_admin_user }}"
+    password: "{{ git_server_admin_password }}"
+    force_basic_auth: yes
+    status_code: 200
+    validate_certs: false
+    headers:
+      Accept: "application/json"
+    return_content: true
+  register: _get_pull_request_details_result
+
+- name: Get pull request commits from bitbucket api
+  uri:
+    url: "{{ git_base_url }}/api/v3/repos/{{ git_project_name }}/{{ git_repo_name }}/pulls/{{ pull_request_id }}/commits"
+    method: GET
+    user: "{{ git_server_admin_user }}"
+    password: "{{ git_server_admin_password }}"
+    force_basic_auth: yes
+    status_code: 200
+    validate_certs: false
+    headers:
+      Accept: "application/json"
+    return_content: true
+  register: _get_pull_request_commits_result
+
+- name: Set Pull Request User
+  set_fact:
+    _pull_request_user: "{{ _get_pull_request_details_result.json.body | default('') | string | regex_search('(?<=This pull request was opened on behalf of )(\\S+)(?=|.+)') }}"
+
+- set_fact:
+    "{{ result }}": 
+      id: "{{ pull_request_id}}"
+      url: "{{ git_base_url }}/{{ git_project_name }}/{{ git_repo_name }}/pulls/{{pull_request_id}}"
+      commits: >-
+        [{% for commit in _get_pull_request_commits_result.json %}
+        { 
+            'id': {{ commit.sha | to_json }},
+            'url': '{{ git_base_url }}/{{ git_project_name }}/{{ git_repo_name }}/commits/{{commit.sha}}',
+            'message': {{ commit.commit.message | default('') | to_json }}
+        },
+        {% endfor %}]
+      description: "{{ _get_pull_request_details_result.json.body | default('') | string }}"
+      author:
+        name: "{{ _pull_request_user if _pull_request_user != '' else _get_pull_request_details_result.json.user.login }}"
+      title: "{{ _get_pull_request_details_result.json.title }}"
+      src_branch: "{{ _get_pull_request_details_result.json.head.label }}"
+      dest_branch: "{{ _get_pull_request_details_result.json.base.label }}"
+      reviewers: >-
+        [{% for reviewer in _get_pull_request_details_result.json.requested_reviewers %}
+        { 
+            'name': {{ reviewer.id | to_json }}
+        },
+        {% endfor %}]

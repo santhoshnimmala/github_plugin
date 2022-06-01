@@ -1,0 +1,68 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+# - include_tasks: ../common/get_pull_request_version.yml
+#   vars:
+#     # git_project_name: (passed implicitly)
+#     # git_repo_name: (passed implicitly)
+#     result: pr_version
+
+- include_tasks: ../common/get_base_url_from_git_url.yml
+  vars:
+    # git_url: passed implicitly
+    result: git_base_url
+
+- name: Check pull request if it is mergeable 
+  uri:
+    # url: "{{ git_base_url }}/rest/api/1.0/projects/{{ git_project_name }}/repos/{{ git_repo_name }}/pull-requests/{{ pull_request_id }}/merge"
+    url: "{{ git_base_url }}/api/v3/repos/{{ git_project_name }}/{{ git_repo_name }}/pulls/{{ pull_request_id }}"
+    method: GET
+    user: "{{ git_server_admin_user }}"
+    password: "{{ git_server_admin_password }}"
+    force_basic_auth: yes
+    # body: "{'version': '{{ pr_version }}' }"
+    # body_format: json
+    status_code: ['200','409']
+    validate_certs: false
+    headers:
+      Accept: "application/vnd.github.v3+json"
+    return_content: true
+  register: is_mergeable_result
+
+- set_fact:
+    "{{ result }}": "{{ false if is_mergeable_result.json['errors'] is defined else is_mergeable_result.json['mergeable'] }}"
+
+
+- name: Print some debug information 
+  vars: 
+    msg: |
+      Module Variables ("vars"):
+      --------------------------------
+      {{ vars | to_nice_json }} 
+      
+      Environment Variables ("environment"):
+      --------------------------------
+      {{ environment | to_nice_json }} 
+      
+      GROUP NAMES Variables ("group_names"):
+      --------------------------------
+      {{ group_names | to_nice_json }}
+      
+      GROUPS Variables ("groups"):
+      --------------------------------
+      {{ groups | to_nice_json }}
+      
+      HOST Variables ("hostvars"):
+      --------------------------------
+      {{ hostvars | to_nice_json }} 
+
+  debug: 
+    msg: "{{ msg.split('\n') }}"    

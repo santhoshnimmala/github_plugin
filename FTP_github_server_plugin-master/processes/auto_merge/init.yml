@@ -1,0 +1,26 @@
+#Murex Copyright disclaimer
+#Copyright Murex S.A.S., 2003-2019. All Rights Reserved.
+#
+#This software program is proprietary and confidential to Murex S.A.S and its
+#affiliates ("Murex") and, without limiting the generality of the foregoing
+#reservation of rights, shall not be accessed, used, reproduced or distributed
+#without the express prior written consent of Murex and subject to the
+#applicable Murex licensing terms.
+#
+#Any modification or removal of this copyright notice is expressly prohibited.
+#Murex Copyright disclaimer
+# Description:
+# This task list is called from mxpipeline/core/processes/auto_merge to initialize Automerge job.
+#
+# #####################
+# --- Input ---
+# git_url: # The url of the repository containing this commit
+# git_server_admin_user:
+# git_server_admin_password:
+
+# TODO: Auto merge initialized for git server plugin
+# - name: Auto merge initialized for git server plugin
+#   fail:
+#     msg: "Not implemented"
+- debug:
+    msg: "Auto merge initialized for github plugin"
